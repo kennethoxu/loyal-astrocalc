@@ -43,4 +43,16 @@ public class BulkUtil {
     }
     return dmgMap;
   }
+
+  public static int resolveDamage(JizzResult jr) {
+    if (jr.dodge > 0) {
+      return 0;
+    }
+
+    if (jr.range < jr.requiredRange) {
+      return 0;
+    }
+
+    return Math.max(jr.damage - (jr.block - Math.min(jr.block, jr.pierce)), 0);
+  }
 }

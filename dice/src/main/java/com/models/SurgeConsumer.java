@@ -8,12 +8,13 @@ public class SurgeConsumer {
   public static final SurgeConsumer BASIC_1_PIERCE = new SurgeConsumer(1, 0, 1, 0);
   public static final SurgeConsumer LS_3_PIERCE = new SurgeConsumer(1, 0, 3, 0);
   public static final SurgeConsumer ADV_2_DMG = new SurgeConsumer(2, 2, 0, 0);
+  public static final SurgeConsumer ADV_3_DMG = new SurgeConsumer(2, 3, 0, 0);
 
 
-  private final int cost;
-  private final int damage;
-  private final int pierce;
-  private final int range;
+  public final int cost;
+  public final int damage;
+  public final int pierce;
+  public final int range;
 
   public SurgeConsumer(int cost, int damage, int pierce, int range) {
     this.cost = cost;
@@ -21,23 +22,6 @@ public class SurgeConsumer {
     this.pierce = pierce;
     this.range = range;
   }
-
-  public int getCost() {
-    return cost;
-  }
-
-  public int getDamage() {
-    return damage;
-  }
-
-  public int getPierce() {
-    return pierce;
-  }
-
-  public int getRange() {
-    return range;
-  }
-
 
   @Override
   public String toString() {

@@ -57,12 +57,10 @@ public class BulkResult {
   @Override
   public String toString() {
     return "BulkResult{" +
-       "dodge=" + dodge +
-       ", block=" + block +
+       "block=" + block +
        ", evade=" + evade +
        ", damage=" + damage +
        ", surge=" + surge +
-       ", range=" + range +
        '}';
   }
 }
