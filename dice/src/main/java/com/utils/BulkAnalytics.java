@@ -7,19 +7,6 @@ import java.util.*;
 
 public class BulkAnalytics {
 
-  public static Map<BulkResult, Integer> histogram(Weapon weapon, DefenceDie defenceDie) {
-    return histogram(weapon, Arrays.asList(defenceDie));
-  }
-
-  public static Map<BulkResult, Integer> histogram(Weapon weapon, List<DefenceDie> defenceDie) {
-    final List<AttackDie> attackDie = weapon.getDie();
-    final List<SurgeConsumer> surgeConsumers = weapon.getSurgeConsumers();
-
-    return histogram(attackDie, defenceDie);
-//    return applySurge(histogram(attackDie, defenceDie), surgeConsumers);
-  }
-
-
   public static Map<BulkResult, Integer> histogram(List<AttackDie> attackDie, List<DefenceDie> defenceDie) {
     Map<BulkResult, Integer> prevDistribMap = null;
     for (AttackDie attackDice : attackDie) {
@@ -33,63 +20,116 @@ public class BulkAnalytics {
     return prevDistribMap;
   }
 
-  private static Map<BulkResult, Integer> applySurge(Map<BulkResult, Integer> histo, List<SurgeConsumer> surgeConsumers) {
-    final Map<BulkResult, Integer> newMap = new HashMap<>(histo.size());
+  static void print2(Map<BulkResult, Integer> map) {
+    for (Map.Entry<BulkResult, Integer> entry : map.entrySet()) {
+      System.out.println(entry.getKey() + ": " + entry.getValue());
+    }
+  }
+
+  public static Map<Integer, Integer> histogram(Weapon weapon, DefenceDie defenceDie) {
+    return histogram(weapon, Arrays.asList(defenceDie));
+  }
+
+  public static Map<Integer, Integer> histogram(Weapon weapon, List<DefenceDie> defenceDie) {
+    final List<AttackDie> attackDie = weapon.getDie();
+    final List<SurgeConsumer> surgeConsumers = weapon.getSurgeConsumers();
+
+    return applySurge(histogram(attackDie, defenceDie), surgeConsumers, -300);
+  }
+
+  private static Map<Integer, Integer> applySurge(
+     Map<BulkResult, Integer> histo,
+     List<SurgeConsumer> surgeConsumers,
+     int requiredRange) {
+
+    final Map<Integer, Integer> newMap = new HashMap<>(histo.size());
     for (Map.Entry<BulkResult, Integer> entry : histo.entrySet()) {
       final BulkResult keyBr = entry.getKey();
+      final Integer keyBrFreq = entry.getValue();
+      final int numSurge = Math.max(0, keyBr.surge - keyBr.evade);;
 
-      Integer bonusDamage = 0;
-      Integer bonusRange = 0;
-      Integer bonusPierce = 0;
-      int remainingSurge = keyBr.surge - keyBr.evade;
-      final Iterator<SurgeConsumer> surgeConsumerItr = surgeConsumers.iterator();
-      while (remainingSurge > 0 && surgeConsumerItr.hasNext()) {
-        final SurgeConsumer surgeConsumer = surgeConsumerItr.next();
-        if (surgeConsumer.getCost() <= remainingSurge) {
-          bonusDamage += surgeConsumer.getDamage();
-          bonusRange += surgeConsumer.getRange();
-          bonusPierce += surgeConsumer.getPierce();
-          remainingSurge -= surgeConsumer.getCost();
+      if (numSurge > 0) {
+        final Set<SurgeConsumer> combinedSurgeEffects =
+           combineSurgeEffects(getSurgeConsumerCombos(surgeConsumers, numSurge));
+
+        if (!combinedSurgeEffects.isEmpty()) {
+          int highestDamage = Integer.MIN_VALUE;
+          for (SurgeConsumer currSc : combinedSurgeEffects) {
+            final JizzResult jizzResult = new JizzResult(
+               keyBr.dodge,
+               keyBr.block,
+               keyBr.damage + currSc.damage,
+               currSc.pierce,
+               keyBr.range + currSc.range,
+               requiredRange
+            );
+
+            highestDamage = Math.max(highestDamage, BulkUtil.resolveDamage(jizzResult));
+          }
+          addToMap(newMap, highestDamage, keyBrFreq);
+        } else {
+          //Pierce without surge
+          final int damage = BulkUtil.resolveDamage(new JizzResult(keyBr, 0, requiredRange));
+          addToMap(newMap, damage, keyBrFreq);
         }
-      }
-
-      final BulkResult resolvedDmgBr = new BulkResult(
-         keyBr.dodge,
-         keyBr.block,
-         keyBr.evade,
-         keyBr.damage + bonusDamage,
-         keyBr.surge,
-         keyBr.range + bonusRange
-      );
-      if (newMap.get(resolvedDmgBr) == null) {
-        newMap.put(resolvedDmgBr, entry.getValue());
       } else {
-        newMap.put(resolvedDmgBr, newMap.get(resolvedDmgBr) + entry.getValue());
+        //Pierce without surge
+        final int damage = BulkUtil.resolveDamage(new JizzResult(keyBr, 0, requiredRange));
+        addToMap(newMap, damage, keyBrFreq);
       }
     }
     return newMap;
+  }
+
+  private static void addToMap(Map<Integer, Integer> map, int key, int val) {
+    if (map.get(key) == null) {
+      map.put(key, val);
+    } else {
+      map.put(key, map.get(key) + val);
+    }
+  }
+
+  public static Set<SurgeConsumer> combineSurgeEffects(Set<List<SurgeConsumer>> scCombos) {
+    final Set<SurgeConsumer> retSet = new HashSet<>(scCombos.size());
+    for (List<SurgeConsumer> currScList : scCombos) {
+      int cost = 0;
+      int damage = 0;
+      int pierce = 0;
+      int range = 0;
+      for (SurgeConsumer currSc : currScList) {
+        damage += currSc.damage;
+        pierce += currSc.pierce;
+        range += currSc.range;
+        cost += currSc.cost;
+      }
+      final SurgeConsumer sc = new SurgeConsumer(cost, damage, pierce, range);
+      retSet.add(sc);
+    }
+
+    return retSet;
   }
 
   public static Set<List<SurgeConsumer>> getSurgeConsumerCombos(List<SurgeConsumer> consumers, int surge) {
     // Get all Surge combos:
     final List<List<SurgeConsumer>> surgePerms = Combinatorics.generateAllPerms(consumers);
 
-    // Filtered list that only has usable surges
     final Set<List<SurgeConsumer>> filteredSurgePerms = new HashSet<>(surgePerms.size());
 
-    // Filter down to relevant ones
+    // Filter down to relevant ones that fullfill cost
     for (List<SurgeConsumer> surgeOrder : surgePerms) {
       int remainingSurge = surge;
       final Iterator<SurgeConsumer> surgeConsumerItr = surgeOrder.iterator();
       final List<SurgeConsumer> filteredSC = new ArrayList<>(surgeOrder.size());
       while (remainingSurge > 0 && surgeConsumerItr.hasNext()) {
         final SurgeConsumer currSC = surgeConsumerItr.next();
-        if (currSC.getCost() <= remainingSurge) {
-          remainingSurge -= currSC.getCost();
+        if (currSC.cost <= remainingSurge) {
+          remainingSurge -= currSC.cost;
           filteredSC.add(currSC);
         }
       }
-      filteredSurgePerms.add(filteredSC);
+      if (!filteredSC.isEmpty()) {
+        filteredSurgePerms.add(filteredSC);
+      }
     }
 
     return filteredSurgePerms;

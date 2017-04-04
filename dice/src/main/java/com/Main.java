@@ -5,29 +5,31 @@ import com.models.Dice;
 import com.models.SurgeConsumer;
 import com.models.Weapon;
 import com.utils.BulkAnalytics;
+import com.utils.HistogramUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class Main {
 
   public static void main(String[] args) {
 
-    final List<SurgeConsumer> surgeConsumers = new ArrayList<>(Arrays.asList(
-       SurgeConsumer.ADV_2_DMG,
+    final List<SurgeConsumer> surgeConsumers2 = new ArrayList<>(Arrays.asList(
+       SurgeConsumer.LS_3_PIERCE,
+       SurgeConsumer.BASIC_2_DMG,
        SurgeConsumer.BASIC_1_DMG,
-       SurgeConsumer.BASIC_1_DMG));
-    final Weapon shroudedLightsabre = new Weapon(surgeConsumers, Dice.GREEN, Dice.YELLOW);
-
-//    print(HistogramUtil.cdf(
-//       BulkUtil.resolveDamage(BulkAnalytics.histogram(shroudedLightsabre, Arrays.asList(Dice.WHITE)))));
-
-//    print2(BulkAnalytics.histogram(shroudedLightsabre, Arrays.asList(Dice.BLACK)));
+       SurgeConsumer.BASIC_1_DMG
+    )
+    );
+    final Weapon shroudedLightsabre = new Weapon(surgeConsumers2, Dice.GREEN, Dice.YELLOW);
 
 
-    Set<List<SurgeConsumer>> consumers = BulkAnalytics.getSurgeConsumerCombos(surgeConsumers, 2);
-    for (List<SurgeConsumer> currConsumer : consumers) {
-      System.out.println(currConsumer);
-    }
+//    printInt((BulkAnalytics.histogram(shroudedLightsabre, Arrays.asList(Dice.BLACK))));
+//    System.out.println("");
+    print((HistogramUtil.cdf(BulkAnalytics.histogram(shroudedLightsabre, Arrays.asList(Dice.BLACK)))));
+
   }
 
   static void print2(Map<BulkResult, Integer> map) {
@@ -39,6 +41,12 @@ public class Main {
   static void print(Map<Integer, Float> map) {
     for (Map.Entry<Integer, Float> entry : map.entrySet()) {
       System.out.println(entry.getKey() + ": " + entry.getValue() * 100);
+    }
+  }
+
+  static void printInt(Map<Integer, Integer> map) {
+    for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+      System.out.println(entry.getKey() + ": " + entry.getValue());
     }
   }
 }
