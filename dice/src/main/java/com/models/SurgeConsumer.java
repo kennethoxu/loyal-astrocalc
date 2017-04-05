@@ -11,7 +11,6 @@ public class SurgeConsumer {
   public static final SurgeConsumer ADV_2_DMG = new SurgeConsumer(2, 2, 0, 0);
   public static final SurgeConsumer ADV_3_DMG = new SurgeConsumer(2, 3, 0, 0);
 
-
   public final int cost;
   public final int damage;
   public final int pierce;

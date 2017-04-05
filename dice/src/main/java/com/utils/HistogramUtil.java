@@ -1,12 +1,30 @@
 package com.utils;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by kennethoxu on 4/2/17.
  */
 public class HistogramUtil {
+
+  public static <T> Map<Integer, T> sortByKey(Map<Integer, T> histogram) {
+
+    Map<Integer, T> sortedMap = new TreeMap<>(
+       new Comparator<Integer>() {
+         @Override
+         public int compare(Integer o1, Integer o2) {
+           return o1.compareTo(o2);
+         }
+
+       });
+
+    sortedMap.putAll(histogram);
+
+    return sortedMap;
+  }
 
 
   public static Map<Integer, Float> percent(Map<Integer, Integer> histogram) {
@@ -15,7 +33,7 @@ public class HistogramUtil {
       sum += entry.getValue();
     }
 
-    final Map<Integer, Float> retMap = new HashMap<>(histogram.size());
+    final Map<Integer, Float> retMap = new TreeMap<>();
     for (Map.Entry<Integer, Integer> entry : histogram.entrySet()) {
       retMap.put(entry.getKey(), entry.getValue() * 1.0f / sum);
     }
@@ -27,7 +45,7 @@ public class HistogramUtil {
     final Map<Integer, Float> distribMap = percent(histogram);
 
     float sum = 0;
-    final Map<Integer, Float> retMap = new HashMap<>(distribMap.size());
+    final Map<Integer, Float> retMap = new TreeMap<>();
     for (Map.Entry<Integer, Float> entry : distribMap.entrySet()) {
       retMap.put(entry.getKey(), 1.0f - sum);
       sum += entry.getValue();

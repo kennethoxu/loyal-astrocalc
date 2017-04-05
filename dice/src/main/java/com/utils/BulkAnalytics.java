@@ -10,6 +10,28 @@ import java.util.*;
 
 public class BulkAnalytics {
 
+  public static Map<Integer, Integer> histogram(
+     Weapon weapon,
+     List<DefenceDie> defenceDie,
+     int requiredRange) {
+    return histogram(weapon, defenceDie, new CombatMods(), requiredRange);
+  }
+
+  public static Map<Integer, Integer> histogram(
+     Weapon weapon,
+     List<DefenceDie> defenceDie,
+     CombatMods scm,
+     int requiredRange) {
+    final List<AttackDie> attackDie = weapon.getDie();
+    final List<SurgeConsumer> surgeConsumers = weapon.getSurgeConsumers();
+
+    final Map<BulkResult, Integer> histoMap = histogram(attackDie, defenceDie);
+    final Map<Integer, Integer> damageMap = applySurge(histoMap, surgeConsumers, scm, requiredRange);
+
+    //Sort by damage:
+    return HistogramUtil.sortByKey(damageMap);
+  }
+
   public static Map<BulkResult, Integer> histogram(List<AttackDie> attackDie, List<DefenceDie> defenceDie) {
     Map<BulkResult, Integer> prevDistribMap = null;
     for (AttackDie attackDice : attackDie) {
@@ -23,57 +45,53 @@ public class BulkAnalytics {
     return prevDistribMap;
   }
 
-  static void print2(Map<BulkResult, Integer> map) {
-    for (Map.Entry<BulkResult, Integer> entry : map.entrySet()) {
-      System.out.println(entry.getKey() + ": " + entry.getValue());
-    }
-  }
-
-  public static Map<Integer, Integer> histogram(Weapon weapon, List<DefenceDie> defenceDie, int requiredRange) {
-    final List<AttackDie> attackDie = weapon.getDie();
-    final List<SurgeConsumer> surgeConsumers = weapon.getSurgeConsumers();
-
-    return applySurge(histogram(attackDie, defenceDie), surgeConsumers, requiredRange);
-  }
-
   private static Map<Integer, Integer> applySurge(
      Map<BulkResult, Integer> histo,
      List<SurgeConsumer> surgeConsumers,
+     CombatMods scm,
      int requiredRange) {
 
     final Map<Integer, Integer> newMap = new HashMap<>(histo.size());
     for (Map.Entry<BulkResult, Integer> entry : histo.entrySet()) {
       final BulkResult keyBr = entry.getKey();
       final Integer keyBrFreq = entry.getValue();
-      final int numSurge = Math.max(0, keyBr.surge - keyBr.evade);
+      final int numSurge = Math.max(0, keyBr.surge + scm.surge - keyBr.evade - scm.evade);
 
       if (numSurge > 0) {
         final Set<SurgeConsumer> combinedSurgeEffects =
            combineSurgeEffects(getSurgeConsumerCombos(surgeConsumers, numSurge));
 
         if (!combinedSurgeEffects.isEmpty()) {
-          final int highestDamageSurge = getHighestDamageSurge(keyBr, combinedSurgeEffects, requiredRange);
+          final int highestDamageSurge = getHighestDamageSurge(keyBr, combinedSurgeEffects, scm, requiredRange);
           addToMapVal(newMap, highestDamageSurge, keyBrFreq);
           continue;
         }
       }
 
       //Pierce without surge
-      final int damage = BulkUtil.resolveDamage(new FinalCombatResult(keyBr, 0, requiredRange));
+      final int damage = BulkUtil.resolveDamage(new FinalCombatResult(keyBr, scm, requiredRange));
       addToMapVal(newMap, damage, keyBrFreq);
     }
     return newMap;
   }
 
-  private static int getHighestDamageSurge(BulkResult br, Set<SurgeConsumer> combinedSurgeEffects, int requiredRange) {
+  private static int getHighestDamageSurge(
+     BulkResult br,
+     Set<SurgeConsumer> combinedSurgeEffects,
+     CombatMods scm,
+     int requiredRange
+  ) {
+
+    System.out.println(scm.damage);
+
     int highestDamage = Integer.MIN_VALUE;
     for (SurgeConsumer currSc : combinedSurgeEffects) {
       final FinalCombatResult finalCombatResult = new FinalCombatResult(
          br.dodge,
-         br.block,
-         br.damage + currSc.damage,
-         currSc.pierce,
-         br.range + currSc.range,
+         br.block + scm.block,
+         br.damage + currSc.damage + scm.damage,
+         currSc.pierce + scm.pierce,
+         br.range + currSc.range + scm.range,
          requiredRange
       );
 

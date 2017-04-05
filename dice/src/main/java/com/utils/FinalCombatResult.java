@@ -1,6 +1,7 @@
 package com.utils;
 
 import com.models.BulkResult;
+import com.models.CombatMods;
 
 public class FinalCombatResult {
 
@@ -11,12 +12,12 @@ public class FinalCombatResult {
   public final int range;
   public final int requiredRange;
 
-  public FinalCombatResult(BulkResult bulkResult, int pierce, int requiredRange) {
+  public FinalCombatResult(BulkResult bulkResult, CombatMods scm, int requiredRange) {
     this.dodge = bulkResult.dodge;
-    this.block = bulkResult.block;
-    this.damage = bulkResult.damage;
-    this.range = bulkResult.range;
-    this.pierce = pierce;
+    this.block = bulkResult.block + scm.block;
+    this.damage = bulkResult.damage + scm.damage;
+    this.range = bulkResult.range + scm.range;
+    this.pierce = scm.pierce;
     this.requiredRange = requiredRange;
   }
 
