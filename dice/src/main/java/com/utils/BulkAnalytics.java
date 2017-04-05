@@ -2,6 +2,7 @@ package com.utils;
 
 
 import com.models.*;
+import com.oracle.tools.packager.Log;
 
 import java.util.*;
 
@@ -46,7 +47,7 @@ public class BulkAnalytics {
     for (Map.Entry<BulkResult, Integer> entry : histo.entrySet()) {
       final BulkResult keyBr = entry.getKey();
       final Integer keyBrFreq = entry.getValue();
-      final int numSurge = Math.max(0, keyBr.surge - keyBr.evade);;
+      final int numSurge = Math.max(0, keyBr.surge - keyBr.evade);
 
       if (numSurge > 0) {
         final Set<SurgeConsumer> combinedSurgeEffects =

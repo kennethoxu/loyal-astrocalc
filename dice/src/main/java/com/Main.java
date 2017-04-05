@@ -29,7 +29,6 @@ public class Main {
 //    printInt((BulkAnalytics.histogram(shroudedLightsabre, Arrays.asList(Dice.BLACK))));
 //    System.out.println("");
     print((HistogramUtil.cdf(BulkAnalytics.histogram(shroudedLightsabre, Arrays.asList(Dice.BLACK)))));
-
   }
 
   static void print2(Map<BulkResult, Integer> map) {
