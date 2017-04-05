@@ -1,7 +1,7 @@
-package com.models.weapon;
+package com.kox.r6astrocalc.ia_logic.models.weapon;
 
-import com.models.Dice;
-import com.models.SurgeConsumer;
+import com.kox.r6astrocalc.ia_logic.models.Dice;
+import com.kox.r6astrocalc.ia_logic.models.SurgeConsumer;
 
 import java.util.Arrays;
 

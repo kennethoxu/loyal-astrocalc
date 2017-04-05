@@ -1,4 +1,4 @@
-package com.models;
+package com.kox.r6astrocalc.ia_logic.models;
 
 public class SurgeConsumer {
 

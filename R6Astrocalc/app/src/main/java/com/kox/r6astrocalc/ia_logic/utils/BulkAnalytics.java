@@ -1,12 +1,20 @@
-package com.utils;
+package com.kox.r6astrocalc.ia_logic.utils;
 
 
-import com.models.*;
-import com.models.dice.AttackDie;
-import com.models.dice.DefenceDie;
-import com.models.weapon.Weapon;
+import com.kox.r6astrocalc.ia_logic.models.BulkResult;
+import com.kox.r6astrocalc.ia_logic.models.CombatMods;
+import com.kox.r6astrocalc.ia_logic.models.SurgeConsumer;
+import com.kox.r6astrocalc.ia_logic.models.dice.AttackDie;
+import com.kox.r6astrocalc.ia_logic.models.dice.DefenceDie;
+import com.kox.r6astrocalc.ia_logic.models.weapon.Weapon;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class BulkAnalytics {
 
@@ -81,8 +89,6 @@ public class BulkAnalytics {
      CombatMods scm,
      int requiredRange
   ) {
-
-    System.out.println(scm.damage);
 
     int highestDamage = Integer.MIN_VALUE;
     for (SurgeConsumer currSc : combinedSurgeEffects) {

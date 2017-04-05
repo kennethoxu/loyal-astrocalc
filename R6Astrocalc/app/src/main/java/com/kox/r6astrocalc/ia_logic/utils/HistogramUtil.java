@@ -1,13 +1,9 @@
-package com.utils;
+package com.kox.r6astrocalc.ia_logic.utils;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * Created by kennethoxu on 4/2/17.
- */
 public class HistogramUtil {
 
   public static <T> Map<Integer, T> sortByKey(Map<Integer, T> histogram) {

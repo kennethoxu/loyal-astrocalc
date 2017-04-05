@@ -1,7 +1,7 @@
-package com.utils;
+package com.kox.r6astrocalc.ia_logic.utils;
 
-import com.models.BulkResult;
-import com.models.CombatMods;
+import com.kox.r6astrocalc.ia_logic.models.BulkResult;
+import com.kox.r6astrocalc.ia_logic.models.CombatMods;
 
 public class FinalCombatResult {
 

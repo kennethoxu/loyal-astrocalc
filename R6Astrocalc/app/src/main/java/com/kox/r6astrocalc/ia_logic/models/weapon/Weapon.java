@@ -1,8 +1,8 @@
-package com.models.weapon;
+package com.kox.r6astrocalc.ia_logic.models.weapon;
 
-import com.models.CombatMods;
-import com.models.SurgeConsumer;
-import com.models.dice.AttackDie;
+import com.kox.r6astrocalc.ia_logic.models.CombatMods;
+import com.kox.r6astrocalc.ia_logic.models.SurgeConsumer;
+import com.kox.r6astrocalc.ia_logic.models.dice.AttackDie;
 
 import java.util.List;
 
