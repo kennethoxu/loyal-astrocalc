@@ -2,7 +2,9 @@ package com.utils;
 
 
 import com.models.*;
-import com.oracle.tools.packager.Log;
+import com.models.dice.AttackDie;
+import com.models.dice.DefenceDie;
+import com.models.weapon.Weapon;
 
 import java.util.*;
 
@@ -27,15 +29,11 @@ public class BulkAnalytics {
     }
   }
 
-  public static Map<Integer, Integer> histogram(Weapon weapon, DefenceDie defenceDie) {
-    return histogram(weapon, Arrays.asList(defenceDie));
-  }
-
-  public static Map<Integer, Integer> histogram(Weapon weapon, List<DefenceDie> defenceDie) {
+  public static Map<Integer, Integer> histogram(Weapon weapon, List<DefenceDie> defenceDie, int requiredRange) {
     final List<AttackDie> attackDie = weapon.getDie();
     final List<SurgeConsumer> surgeConsumers = weapon.getSurgeConsumers();
 
-    return applySurge(histogram(attackDie, defenceDie), surgeConsumers, -300);
+    return applySurge(histogram(attackDie, defenceDie), surgeConsumers, requiredRange);
   }
 
   private static Map<Integer, Integer> applySurge(
@@ -54,40 +52,34 @@ public class BulkAnalytics {
            combineSurgeEffects(getSurgeConsumerCombos(surgeConsumers, numSurge));
 
         if (!combinedSurgeEffects.isEmpty()) {
-          int highestDamage = Integer.MIN_VALUE;
-          for (SurgeConsumer currSc : combinedSurgeEffects) {
-            final JizzResult jizzResult = new JizzResult(
-               keyBr.dodge,
-               keyBr.block,
-               keyBr.damage + currSc.damage,
-               currSc.pierce,
-               keyBr.range + currSc.range,
-               requiredRange
-            );
-
-            highestDamage = Math.max(highestDamage, BulkUtil.resolveDamage(jizzResult));
-          }
-          addToMap(newMap, highestDamage, keyBrFreq);
-        } else {
-          //Pierce without surge
-          final int damage = BulkUtil.resolveDamage(new JizzResult(keyBr, 0, requiredRange));
-          addToMap(newMap, damage, keyBrFreq);
+          final int highestDamageSurge = getHighestDamageSurge(keyBr, combinedSurgeEffects, requiredRange);
+          addToMapVal(newMap, highestDamageSurge, keyBrFreq);
+          continue;
         }
-      } else {
-        //Pierce without surge
-        final int damage = BulkUtil.resolveDamage(new JizzResult(keyBr, 0, requiredRange));
-        addToMap(newMap, damage, keyBrFreq);
       }
+
+      //Pierce without surge
+      final int damage = BulkUtil.resolveDamage(new FinalCombatResult(keyBr, 0, requiredRange));
+      addToMapVal(newMap, damage, keyBrFreq);
     }
     return newMap;
   }
 
-  private static void addToMap(Map<Integer, Integer> map, int key, int val) {
-    if (map.get(key) == null) {
-      map.put(key, val);
-    } else {
-      map.put(key, map.get(key) + val);
+  private static int getHighestDamageSurge(BulkResult br, Set<SurgeConsumer> combinedSurgeEffects, int requiredRange) {
+    int highestDamage = Integer.MIN_VALUE;
+    for (SurgeConsumer currSc : combinedSurgeEffects) {
+      final FinalCombatResult finalCombatResult = new FinalCombatResult(
+         br.dodge,
+         br.block,
+         br.damage + currSc.damage,
+         currSc.pierce,
+         br.range + currSc.range,
+         requiredRange
+      );
+
+      highestDamage = Math.max(highestDamage, BulkUtil.resolveDamage(finalCombatResult));
     }
+    return highestDamage;
   }
 
   public static Set<SurgeConsumer> combineSurgeEffects(Set<List<SurgeConsumer>> scCombos) {
@@ -136,30 +128,28 @@ public class BulkAnalytics {
     return filteredSurgePerms;
   }
 
+  private static <T> void addToMapVal(Map<T, Integer> map, T key, Integer val) {
+    if (map.get(key) == null) {
+      map.put(key, val);
+    } else {
+      map.put(key, map.get(key) + val);
+    }
+  }
 
   private static Map<BulkResult, Integer> combineDistribMap(Map<BulkResult, Integer> prevMap, BulkResult[] bulkResults) {
     if (prevMap == null) {
       final Map<BulkResult, Integer> newMap = new HashMap<>();
       for (int i = 0; i < bulkResults.length; i++) {
-        if (newMap.get(bulkResults[i]) == null) {
-          newMap.put(bulkResults[i], 1);
-        } else {
-          newMap.put(bulkResults[i], newMap.get(bulkResults[i]) + 1);
-        }
+        addToMapVal(newMap, bulkResults[i], 1);
       }
       return newMap;
     }
 
     final Map<BulkResult, Integer> newMap = new HashMap<>(prevMap.size());
     for (Map.Entry<BulkResult, Integer> entry : prevMap.entrySet()) {
-      final BulkResult key = entry.getKey();
-      for (BulkResult bulkResult : bulkResults) {
-        final BulkResult keyPlusBR = key.add(bulkResult);
-        if (newMap.get(keyPlusBR) == null) {
-          newMap.put(keyPlusBR, prevMap.get(key));
-        } else {
-          newMap.put(keyPlusBR, prevMap.get(key) + newMap.get(keyPlusBR));
-        }
+      final BulkResult keyBr = entry.getKey();
+      for (BulkResult currBr : bulkResults) {
+        addToMapVal(newMap, keyBr.add(currBr), prevMap.get(keyBr));
       }
     }
     return newMap;

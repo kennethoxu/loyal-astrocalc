@@ -1,4 +1,9 @@
-package com.models;
+package com.models.dice;
+
+import com.models.BulkResult;
+import com.models.Dice;
+import com.models.DiceColor;
+import com.models.RollAttackResult;
 
 import java.util.Random;
 import java.util.stream.IntStream;

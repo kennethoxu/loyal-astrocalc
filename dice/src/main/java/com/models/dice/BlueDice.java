@@ -1,4 +1,6 @@
-package com.models;
+package com.models.dice;
+
+import com.models.DiceColor;
 
 public class BlueDice extends AttackDie {
 

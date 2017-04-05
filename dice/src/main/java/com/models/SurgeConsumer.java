@@ -4,6 +4,7 @@ public class SurgeConsumer {
 
   public static final SurgeConsumer BASIC_1_DMG = new SurgeConsumer(1, 1, 0, 0);
   public static final SurgeConsumer BASIC_2_DMG = new SurgeConsumer(1, 2, 0, 0);
+  public static final SurgeConsumer BASIC_1_DMG_2_ACC = new SurgeConsumer(1, 1, 0, 2);
   public static final SurgeConsumer BASIC_1_RANGE = new SurgeConsumer(1, 0, 0, 1);
   public static final SurgeConsumer BASIC_1_PIERCE = new SurgeConsumer(1, 0, 1, 0);
   public static final SurgeConsumer LS_3_PIERCE = new SurgeConsumer(1, 0, 3, 0);

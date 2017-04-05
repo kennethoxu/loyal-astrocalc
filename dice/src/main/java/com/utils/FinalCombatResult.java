@@ -2,10 +2,7 @@ package com.utils;
 
 import com.models.BulkResult;
 
-/**
- * Created by kennethoxu on 4/4/17.
- */
-public class JizzResult {
+public class FinalCombatResult {
 
   public final int dodge;
   public final int block;
@@ -14,7 +11,7 @@ public class JizzResult {
   public final int range;
   public final int requiredRange;
 
-  public JizzResult(BulkResult bulkResult, int pierce, int requiredRange) {
+  public FinalCombatResult(BulkResult bulkResult, int pierce, int requiredRange) {
     this.dodge = bulkResult.dodge;
     this.block = bulkResult.block;
     this.damage = bulkResult.damage;
@@ -23,7 +20,7 @@ public class JizzResult {
     this.requiredRange = requiredRange;
   }
 
-  public JizzResult(int dodge, int block, int damage, int pierce, int range, int requiredRange) {
+  public FinalCombatResult(int dodge, int block, int damage, int pierce, int range, int requiredRange) {
     this.dodge = dodge;
     this.block = block;
     this.damage = damage;

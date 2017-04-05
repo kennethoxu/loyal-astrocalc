@@ -1,4 +1,8 @@
-package com.models;
+package com.models.dice;
+
+import com.models.BulkResult;
+import com.models.Dice;
+import com.models.RollDefenseResult;
 
 import java.util.Random;
 

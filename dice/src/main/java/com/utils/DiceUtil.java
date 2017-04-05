@@ -1,7 +1,7 @@
 package com.utils;
 
-import com.models.AttackDie;
-import com.models.DefenceDie;
+import com.models.dice.AttackDie;
+import com.models.dice.DefenceDie;
 import com.models.DiceStat;
 
 public class DiceUtil {

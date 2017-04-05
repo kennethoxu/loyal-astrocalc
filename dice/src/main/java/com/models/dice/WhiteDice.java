@@ -1,4 +1,4 @@
-package com.models;
+package com.models.dice;
 
 public class WhiteDice extends DefenceDie {
 

@@ -1,5 +1,8 @@
 package com.models;
 
+import com.models.dice.AttackDie;
+import com.models.dice.DefenceDie;
+
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,12 +1,15 @@
-package com.models;
+package com.models.dice;
 
-public class RedDice extends AttackDie {
+import com.models.DiceColor;
+import com.models.dice.AttackDie;
+
+public class RedDie extends AttackDie {
 
   public static final int[] DAMAGE = {1, 2, 2, 2, 3, 3};
   public static final int[] SURGE = {0, 0, 0, 1, 0, 0};
   public static final int[] RANGE = {0, 0, 0, 0, 0, 0};
 
-  public RedDice() {
+  public RedDie() {
     super(DAMAGE, SURGE, RANGE, DiceColor.RED);
   }
 
