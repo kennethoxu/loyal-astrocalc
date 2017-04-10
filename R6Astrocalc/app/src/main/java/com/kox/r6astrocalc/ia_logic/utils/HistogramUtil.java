@@ -9,19 +9,38 @@ public class HistogramUtil {
   public static <T> Map<Integer, T> sortByKey(Map<Integer, T> histogram) {
 
     Map<Integer, T> sortedMap = new TreeMap<>(
-       new Comparator<Integer>() {
-         @Override
-         public int compare(Integer o1, Integer o2) {
-           return o1.compareTo(o2);
-         }
+        new Comparator<Integer>() {
+          @Override
+          public int compare(Integer o1, Integer o2) {
+            return o1.compareTo(o2);
+          }
 
-       });
+        });
 
     sortedMap.putAll(histogram);
 
     return sortedMap;
   }
 
+  /**
+   * Left pads 1 to
+   */
+  public static Map<Integer, Float> padLeft(Map<Integer, Float> histogram) {
+    int firstVal = 1;
+    for (Map.Entry<Integer, Float> entry : histogram.entrySet()) {
+      firstVal = entry.getKey();
+      break;
+    }
+
+    for (int i = 0; i < firstVal; i++) {
+      if (histogram.get(i) == null) {
+        histogram.put(i, 1f);
+      } else {
+        return histogram;
+      }
+    }
+    return histogram;
+  }
 
   public static Map<Integer, Float> percent(Map<Integer, Integer> histogram) {
     int sum = 0;
@@ -46,6 +65,6 @@ public class HistogramUtil {
       retMap.put(entry.getKey(), 1.0f - sum);
       sum += entry.getValue();
     }
-    return retMap;
+    return padLeft(retMap);
   }
 }
